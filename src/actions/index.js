@@ -30,11 +30,38 @@ export function signInUser({ email, password }) {
     }
 }
 
+export function signUpUser({ email, password }) {
+
+    return function (dispath) {
+
+        //submit email/password to the server
+        axios.post(`${ROOT_URL}/signup`, { email, password })
+            .then(response => {
+                //if the request is good
+
+                //update state to indicate user is authenticated
+                dispath({ type: AUTH_USER });
+                //save jwt token
+                localStorage.setItem("token", response.data.token);
+                //redirect to the route '/feature'
+                browserHistory.push("/feature");
+            })
+            .catch(res => {
+                //if request is bad
+                console.log(res);
+                console.log(res.data);
+                //show an error to the user
+                dispath(authError("Email is in use"));
+            });
+    }
+}
+
 export function signoutUser() {
     localStorage.removeItem("token");
 
     return { type: UNAUTH_USER, payload: false };
 }
+
 export function authError(error) {
     return {
         type: AUTH_ERROR,
